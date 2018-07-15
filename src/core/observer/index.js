@@ -148,16 +148,16 @@ export function defineReactive (
   // cater for pre-defined getter/setters
   const getter = property && property.get
   const setter = property && property.set
-  if ((!getter || setter) && arguments.length === 2) {
+  if ((!getter && !setter) && arguments.length === 2) {
     val = obj[key]
   }
 
-  let childOb = !shallow && observe(val)
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
     get: function reactiveGetter () {
       const value = getter ? getter.call(obj) : val
+      const childOb = !shallow && observe(value)
       if (Dep.target) {
         dep.depend()
         if (childOb) {
@@ -184,7 +184,6 @@ export function defineReactive (
       } else {
         val = newVal
       }
-      childOb = !shallow && observe(newVal)
       dep.notify()
     }
   })
